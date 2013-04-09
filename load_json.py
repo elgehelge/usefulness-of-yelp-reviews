@@ -15,12 +15,16 @@ file_name_user = 'yelp_training_set_user.json'
 def read_data(file_name):
     content = open(file_path + file_name, 'rb').read()
     list_of_strings = content.split('\r\n')[:-1]
-    list_of_json = [json.loads(string) for string in list_of_strings]
+    list_of_objects = [json.loads(string) for string in list_of_strings]
     return list_of_objects
 
 def get_data():
-    business = get_data(file_name_business)
-    checkin = get_data(file_name_checkin)
-    review = get_data(file_name_review)
-    user = get_data(file_name_user)
+    business = read_data(file_name_business)
+    print 'Business data loaded.'
+    checkin = read_data(file_name_checkin)
+    print 'Check In data loaded.'
+    review = read_data(file_name_review)
+    print 'Review data loaded.'
+    user = read_data(file_name_user)
+    print 'User data loaded.'
     return business, checkin, review, user
