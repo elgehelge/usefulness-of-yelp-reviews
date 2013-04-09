@@ -2,7 +2,7 @@ import json
 
 # Define file path and file names
 
-file_path = 'yelp-data/yelp_training_set/'
+file_path = '../yelp-data/yelp_training_set/'
 
 file_name_business = 'yelp_training_set_business.json'
 file_name_checkin = 'yelp_training_set_checkin.json'
