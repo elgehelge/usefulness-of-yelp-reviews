@@ -71,4 +71,8 @@ for i, r in enumerate(review):
 size_of_data = sum([len(r) for r in review])
 log("Saving json - Data size: %i" % size_of_data)
 json.dump(review, open('review_bag_of_words.json','wb'))
+# Fixing "Incomplete final line" error in R
+f = open('review_bag_of_words10000.json','wb')
+f.write('\n')
+f.close()
 log("json saved")
