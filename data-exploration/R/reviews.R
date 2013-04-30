@@ -16,30 +16,50 @@ allWords = as.character(lapply(words, function(x) substr(x,3,nchar(x))))
 
 # Business_id, stars_review, votes_cool_review, votes_useful_review, votes_funny_review, review_id_review, date_review, type_review, user_id_review
 # We ignore the variable "type_review"
-numberOfFeatures = length(allWords) + 8
+numberOfFeatures = length(allWords) + 9
+
+metaWords = c("review_id_review", "user_id_review", "business_id_review", "stars_review", "votes_useful_review", "votes_cool_review", "votes_funny_review", "date_review", "no_of_words_review", "type_review")
 
 # Create empty matrix for user data
 i = c(1,numberOfReviews)
 j = c(1,numberOfFeatures)
-dn <- list(1:numberOfReviews, allWords)
+dn <- list(1:numberOfReviews, c(metaWords[1:9], allWords))
 user_matrix = sparseMatrix(i, j, x=c(0,0), dimnames=dn)
 
-metaWords = c("review_id_review", "user_id_review", "business_id_review", "stars_review", "votes_useful_review", "votes_cool_review", "votes_funny_review", "date_review", "type_review")
+
+# We can not store the id-strings in the sparse matrix, so we just store numbers 1 to numberOfReviews
+review_ids = list()
+user_ids = list()
+business_ids = list()
+dates = list()
 
 for(i in 1:10) {
-  # Take the meta-data
-  user_matrix[i, 1] = data[[1]][i][[1]]$review_id_review
-  user_matrix[i, 2] = data[[1]][i][[1]]$user_id_review
-  user_matrix[i, 3] = data[[1]][i][[1]]$business_id_review
-  user_matrix[i, 4] = data[[1]][i][[1]]$stars_review
-  user_matrix[i, 5] = data[[1]][i][[1]]$votes_useful_review
-  user_matrix[i, 6] = data[[1]][i][[1]]$votes_cool_review
-  user_matrix[i, 7] = data[[1]][i][[1]]$votes_funny_review
-  user_matrix[i, 8] = data[[1]][i][[1]]$date_review
+  review_ids = c(review_ids, data[[1]][i][[1]]$review_id_review)
+  user_ids = c(user_ids, data[[1]][i][[1]]$user_id_review)
+  business_ids = c(business_ids, data[[1]][i][[1]]$business_id_review)
   
-  # We need a list of all words here
-  words = names(data[[1]][i][[1]])
-  user_matrix[i, words] = as.numeric(subset(data[[1]][i][[1]], !(names(data[[1]][i][[1]]) %in% metaWords)))
+  user_matrix[i, metaWords[1]] = i
+  user_matrix[i, metaWords[2]] = i
+  user_matrix[i, metaWords[3]] = i
+  user_matrix[i, metaWords[4]] = data[[1]][i][[1]]$stars_review
+  user_matrix[i, metaWords[5]] = data[[1]][i][[1]]$votes_useful_review
+  user_matrix[i, metaWords[6]] = data[[1]][i][[1]]$votes_cool_review
+  user_matrix[i, metaWords[7]] = data[[1]][i][[1]]$votes_funny_review
+  
+  dates = c(dates, data[[1]][i][[1]]$date_review)
+  user_matrix[i, metaWords[8]] = i
+  
+  user_matrix[i, metaWords[9]] = data[[1]][i][[1]]$no_of_words_review
+  
+  for(w in names(data[[1]][i][[1]])) {
+    if(!(w %in% metaWords)) {
+      word = substr(w, 1, nchar(w)-12)
+      print(w)
+      print(word)
+      print(i)
+      user_matrix[i, word] = as.numeric(data[[1]][i][[1]][w])
+    }
+  }
   
   print(paste0("Status ", i, "/", numberOfReviews))
 }
