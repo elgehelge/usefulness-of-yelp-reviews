@@ -30,15 +30,15 @@ logging(True)
 
 # Load data
 business, checkin, review, user = get_data()
-most_common_words = pickle.load(open("43176_most_common_words.pkl"))
+most_common_words = pickle.load(open("../data/43176_most_common_words.pkl"))
 
 # Run through the review list and rearrange each dictionary 
 log("Constructing bag-of-words dictionary of reviews")
 for i, r in enumerate(review):
     if (i % 1000 == 0):
         log('%i/%i - %i%%' % (i, len(review), float(i)/len(review)*100))
-    #if (i == len(review)/10):
-    #    break
+    if (i == len(review)/10):
+        break
 
     # Rearrenge votes
     r[u'votes_useful'] = r['votes']['useful']
@@ -68,12 +68,13 @@ for i, r in enumerate(review):
     for k in r.keys():
         r[k + '_review'] = r[k]
         del r[k]
-
+        
+review = review[:len(review)/10]
 size_of_data = sum([len(r) for r in review])
 log("Saving json - Data size: %i" % size_of_data)
-json.dump(review, open('review_bag_of_words_43176.json','wb'))
+json.dump(review, open('../data/review_bag_of_words_43176_10procent.json','wb'))
 # Fixing "Incomplete final line" error in R
-f = open('review_bag_of_words_43176.json','a+')
+f = open('../data/review_bag_of_words_43176_10procent.json','a+')
 f.write('\n')
 f.close()
 log("json saved")
