@@ -33,48 +33,57 @@ business, checkin, review, user = get_data()
 most_common_words = pickle.load(open("../data/43176_most_common_words.pkl"))
 
 # Run through the review list and rearrange each dictionary 
-log("Constructing bag-of-words dictionary of reviews")
-for i, r in enumerate(review):
-    if (i % 1000 == 0):
-        log('%i/%i - %i%%' % (i, len(review), float(i)/len(review)*100))
-    if (i == len(review)/10):
-        break
+def suffixifyDict(d, suffix):
+    # Put suffix on all keys
+    for k in d.keys():
+        d[k + suffix] = d[k]
+        del d[k]
 
-    # Rearrenge votes
-    r[u'votes_useful'] = r['votes']['useful']
-    r[u'votes_funny'] = r['votes']['funny']
-    r[u'votes_cool'] = r['votes']['cool']
-    del r['votes']
+def rearrange_review(review, doStopEarly):
+    log("Constructing bag-of-words dictionary of reviews")
+    for i, r in enumerate(review):
+        if (i % 1000 == 0):
+            log('%i/%i - %i%%' % (i, len(review), float(i)/len(review)*100))
 
-    text = r['text']
-    tokens = tokenize(r['text'])
+        # Rearrenge votes
+        r[u'votes_useful'] = r['votes']['useful']
+        r[u'votes_funny'] = r['votes']['funny']
+        r[u'votes_cool'] = r['votes']['cool']
+        del r['votes']
 
-    # New features
-    r[u'no_of_words'] = len(tokens)
-    #r[u'longest_word'] = max([len(word) for word in tokens])
-        
-    # Rearrange text into bag-of-words
-    for word in tokens:
-        # Put in dictionary
-        if word in most_common_words:
-            word += '_word'
-            if word in r:
-                r[word] += 1
-            else:
-                r[word] = 1
-    del r['text']
+        text = r['text']
+        tokens = tokenize(r['text'], False)
 
-    # Suffix on all keys
-    for k in r.keys():
-        r[k + '_review'] = r[k]
-        del r[k]
-        
-review = review[:len(review)/10]
-size_of_data = sum([len(r) for r in review])
-log("Saving json - Data size: %i" % size_of_data)
-json.dump(review, open('../data/review_bag_of_words_43176_10procent.json','wb'))
-# Fixing "Incomplete final line" error in R
-f = open('../data/review_bag_of_words_43176_10procent.json','a+')
-f.write('\n')
-f.close()
-log("json saved")
+        # New features
+        r[u'no_of_words'] = len(tokens)
+        #r[u'longest_word'] = max([len(word) for word in tokens])
+            
+        # Rearrange text into bag-of-words
+        for word in tokens:
+            # Put in dictionary
+            if word in most_common_words:
+                word += '_word'
+                if word in r:
+                    r[word] += 1
+                else:
+                    r[word] = 1
+        del r['text']
+
+        # Suffix on all keys
+        suffixifyDict(r, '_review')
+
+        if (doStopEarly and i == len(review)/10):
+            break
+    if doStopEarly:
+        review = review[:len(review)/10]
+    return review
+
+##review = rearrange_review(review, False)
+##size_of_data = sum([len(r) for r in review])
+##log("Saving json - Data size: %i" % size_of_data)
+##json.dump(review, open('../data/review_bag_of_words_43176_10procent.json','wb'))
+### Fixing "Incomplete final line" error in R
+####f = open('../data/review_bag_of_words_43176_10procent.json','a+')
+####f.write('\n')
+####f.close()
+##log("json saved")

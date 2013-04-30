@@ -27,13 +27,13 @@ def transform_word(word):
         #        print word
         # Prices
         if '$' in word:
-                word = '<PRICE>'
+                word = u'<PRICE>'
         # Time
         if 'am' in word or 'pm' in word:
-                word = '<TIME>'
+                word = u'<TIME>'
         # Websites: Look for "www.yelp.com/biz_photos"
         if (pattern_photo.search(word) is not None):
-                word = 'www.yelp.com/biz_photos'
+                word = u'www.yelp.com/biz_photos'
         # Repeated letteeeers: Cut 4+ repeated letters down to 3
         repeat_matches = pattern_repeat.finditer(word)
         for m in repeat_matches:
@@ -42,6 +42,8 @@ def transform_word(word):
         return word
 
 
-def tokenize(text):
+def tokenize(text, doGroup):
     tokenized = custom_word_tokenization(text)
-    return [transform_word(word) for word in tokenized]
+    if doGroup:
+        tokenized = [transform_word(word) for word in tokenized]
+    return tokenized
